@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Drift: Dark Green</title>
+    <title>Aligned Layer Racers</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
@@ -145,6 +145,22 @@
             font-size: 0.9rem;
             margin-top: 15px;
             text-decoration: underline;
+        }
+
+        .btn-share {
+            background: #1da1f2;
+            border-color: #1da1f2;
+            width: 48%;
+            display: inline-block;
+            margin: 5px 1%;
+        }
+
+        .btn-download {
+            background: #28a745;
+            border-color: #28a745;
+            width: 48%;
+            display: inline-block;
+            margin: 5px 1%;
         }
 
         /* --- Game Area --- */
@@ -374,10 +390,44 @@
         #game-over-modal .card {
             border-color: var(--danger);
             box-shadow: 0 0 30px rgba(255, 51, 102, 0.2);
+            max-width: 450px;
         }
         #game-over-modal h2 { color: var(--danger); text-shadow: 0 0 10px var(--danger); }
         
         #final-score-display { font-size: 3rem; color: white; margin: 10px 0; font-weight: bold; }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #88ccaa;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
 
         /* Intro Page with Game Banner */
         .game-banner {
@@ -404,7 +454,7 @@
             <div class="game-banner">
                 <img src="zk.gif" alt="Game Banner">
             </div>
-            <h1>Dark Green Racing</h1>
+            <h1>Aligned Layer Racers</h1>
             <p style="margin-bottom: 20px; color: #ccc;">Navigate the road, collect proofs, and avoid obstacles!</p>
             
             <div id="auth-forms">
@@ -480,13 +530,41 @@
     <!-- Game Over Modal -->
     <div id="game-over-modal" class="page">
         <div class="card">
-            <h2>CRASHED</h2>
-            <p>You hit an obstacle!</p>
-            <div id="final-score-display">0</div>
-            <p style="color: #aaa; margin-bottom: 20px;">POINTS COLLECTED</p>
+            <h2>RACE RESULTS</h2>
+            <p>Driver: <span id="player-name-display">Unknown</span></p>
             
-            <button id="restart-btn" class="btn">Play Again</button>
-            <button id="menu-btn" class="btn btn-secondary">Exit to Menu</button>
+            <div class="player-stats">
+                <div class="stat-item">
+                    <div class="stat-label">FINAL SCORE</div>
+                    <div class="stat-value" id="final-score-display">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">PROOFS COLLECTED</div>
+                    <div class="stat-value" id="proofs-collected">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">TOP SPEED</div>
+                    <div class="stat-value" id="top-speed">100</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">TIME SURVIVED</div>
+                    <div class="stat-value" id="time-survived">0s</div>
+                </div>
+            </div>
+            
+            <div class="share-buttons">
+                <button id="share-twitter" class="btn btn-share">
+                    <i class="fab fa-twitter"></i> Share on X
+                </button>
+                <button id="download-results" class="btn btn-download">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="restart-btn" class="btn" style="width: 48%;">Restart</button>
+                <button id="menu-btn" class="btn btn-secondary" style="width: 48%;">Exit</button>
+            </div>
         </div>
     </div>
 
@@ -513,7 +591,10 @@
             difficultyTimer: 0,
             currentCar: 'car1',
             unlockedCars: ['car1', 'car2', 'car3'], // All cars unlocked by default
-            soundEnabled: true
+            soundEnabled: true,
+            gameStartTime: 0,
+            proofsCollected: 0,
+            topSpeed: 0
         };
 
         // --- DOM Elements ---
@@ -531,7 +612,13 @@
             tutorial: document.getElementById('tutorial'),
             username: document.getElementById('username'),
             soundToggle: document.getElementById('sound-toggle'),
-            gameSound: document.getElementById('game-sound')
+            gameSound: document.getElementById('game-sound'),
+            playerNameDisplay: document.getElementById('player-name-display'),
+            proofsCollectedDisplay: document.getElementById('proofs-collected'),
+            topSpeedDisplay: document.getElementById('top-speed'),
+            timeSurvivedDisplay: document.getElementById('time-survived'),
+            shareTwitter: document.getElementById('share-twitter'),
+            downloadResults: document.getElementById('download-results')
         };
 
         // --- Authentication / Navigation ---
@@ -562,6 +649,38 @@
                 els.gameSound.pause();
                 els.soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
             }
+        });
+
+        // Share on Twitter/X
+        els.shareTwitter.addEventListener('click', () => {
+            const text = `I just scored ${Game.score} points in Aligned Layer Racers! Can you beat my score?`;
+            const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        });
+
+        // Download results
+        els.downloadResults.addEventListener('click', () => {
+            const resultsText = `
+ALIGNED LAYER RACERS - GAME RESULTS
+
+Player: ${els.username.value}
+Final Score: ${Game.score}
+Proofs Collected: ${Game.proofsCollected}
+Top Speed: ${Game.topSpeed}
+Time Survived: ${Math.floor((performance.now() - Game.gameStartTime) / 1000)}s
+
+Play now and beat my score!
+            `.trim();
+            
+            const blob = new Blob([resultsText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `aligned-layer-racers-results-${els.username.value}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         });
 
         function switchPage(from, to) {
@@ -624,6 +743,9 @@
             Game.proofs = [];
             Game.playerX = 50; // Center
             Game.spawnTimer = 0;
+            Game.gameStartTime = performance.now();
+            Game.proofsCollected = 0;
+            Game.topSpeed = 0;
             
             // Clear Road
             const oldObjs = document.querySelectorAll('.obstacle, .proof');
@@ -669,7 +791,13 @@
             // 1. Move Road Texture (Visual Speed)
             const speedMultiplier = 1 + (Game.speed / 20);
             els.roadTexture.style.animationDuration = `${0.8 / speedMultiplier}s`;
-            els.speedDisplay.innerText = Math.floor(100 + (Game.speed * 10));
+            const displaySpeed = Math.floor(100 + (Game.speed * 10));
+            els.speedDisplay.innerText = displaySpeed;
+            
+            // Update top speed
+            if (displaySpeed > Game.topSpeed) {
+                Game.topSpeed = displaySpeed;
+            }
 
             // 2. Spawn Objects
             Game.spawnTimer += deltaTime;
@@ -723,7 +851,7 @@
             const isProof = Math.random() > 0.7; // 30% chance of proof, 70% chance of obstacle
             
             // Increase obstacle frequency over time
-            const gameTime = performance.now() - Game.lastTime;
+            const gameTime = performance.now() - Game.gameStartTime;
             const obstacleChance = Math.min(0.8, 0.5 + (gameTime / 60000) * 0.3); // Increases over 1 minute
 
             if (isProof) {
@@ -740,12 +868,14 @@
                 
                 // Randomly choose between obstacle types
                 const obstacleType = Math.random();
-                if (obstacleType < 0.33) {
+                if (obstacleType < 0.25) {
                     el.innerHTML = '<img src="obstacles.png" alt="Obstacle">';
-                } else if (obstacleType < 0.66) {
+                } else if (obstacleType < 0.5) {
                     el.innerHTML = '<img src="car1.png" alt="Car Obstacle">';
-                } else {
+                } else if (obstacleType < 0.75) {
                     el.innerHTML = '<img src="car2.png" alt="Car Obstacle">';
+                } else {
+                    el.innerHTML = '<img src="car3.png" alt="Car Obstacle">';
                 }
                 
                 els.road.appendChild(el);
@@ -773,6 +903,7 @@
 
         function collectProof(proof, index) {
             Game.score += 2; // Each proof is worth 2 points
+            Game.proofsCollected += 1;
             els.score.innerText = Game.score;
             
             // FX
@@ -792,6 +923,10 @@
         function gameOver() {
             Game.active = false;
             els.finalScore.innerText = Game.score;
+            els.playerNameDisplay.innerText = els.username.value;
+            els.proofsCollectedDisplay.innerText = Game.proofsCollected;
+            els.topSpeedDisplay.innerText = Game.topSpeed;
+            els.timeSurvivedDisplay.innerText = Math.floor((performance.now() - Game.gameStartTime) / 1000) + 's';
             els.gameOver.classList.add('active');
             
             // Stop game sound
