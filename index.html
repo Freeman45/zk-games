@@ -2,128 +2,381 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Green Racing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Drift: Dark Green</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --dark-green: #0a2f0a;
-            --medium-green: #1a5a1a;
-            --light-green: #2a7a2a;
-            --accent-green: #3a9a3a;
-            --black: #121212;
-            --dark-gray: #1e1e1e;
-            --light-gray: #e0e0e0;
+            --neon-green: #00ff88;
+            --dark-green: #004d29;
+            --bg-dark: #050a07;
+            --glass-bg: rgba(10, 30, 20, 0.85);
+            --glass-border: rgba(0, 255, 136, 0.3);
+            --danger: #ff3366;
+            --gold: #ffd700;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-user-select: none;
-            -moz-user-select: none;
             user-select: none;
-            touch-action: pan-y;
+            -webkit-touch-callout: none;
         }
-        
+
         body {
-            background-color: var(--black);
-            color: var(--light-gray);
-            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #0a1f14 0%, #000000 100%);
+        }
+
+        /* --- Modern Glass UI --- */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .page.active {
+            opacity: 1;
+            pointer-events: all;
+            z-index: 20;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+            text-align: center;
+            transform: translateY(20px);
+            animation: floatUp 0.5s forwards;
+        }
+
+        @keyframes floatUp {
+            to { transform: translateY(0); }
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            color: #88ccaa;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #336644;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--dark-green), #006633);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 12px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            text-decoration: underline;
+        }
+
+        /* --- Game Area --- */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
             height: 100vh;
             overflow: hidden;
+            background: #111;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
-        
-        .page {
-            display: none;
+
+        /* The moving road effect */
+        .road-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%; /* Responsive width */
+            max-width: 500px;
+            height: 100%;
+            background-image: url('road.jpg');
+            background-size: cover;
+            border-left: 5px solid white;
+            border-right: 5px solid white;
+            overflow: hidden;
+        }
+
+        .road-texture {
+            position: absolute;
             width: 100%;
-            min-height: 100vh;
-            padding: 20px;
+            height: 200%; /* Double height for looping */
+            top: -100%;
+            background-image: 
+                linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.5) 50%, transparent 51%);
+            background-size: 100% 100px; /* Spacing of lines */
+            animation: scrollRoad 0.8s linear infinite; /* Adjusted via JS for speed */
         }
         
-        .active {
-            display: block;
+        /* Water effects on sides */
+        .water-side {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50vw;
+            background-image: url('water.gif');
+            background-size: cover;
+            opacity: 0.8;
+            z-index: 1;
         }
+        .water-left { right: 50%; margin-right: 250px; }
+        .water-right { left: 50%; margin-left: 250px; }
         
-        /* Auth Pages */
-        .auth-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: var(--dark-green);
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        .water-overlay {
+            position: absolute;
+            top:0; left:0; width:100%; height:100%;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.1"/%3E%3C/svg%3E');
+            animation: waterMove 5s linear infinite;
         }
-        
-        .auth-container h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: var(--accent-green);
+
+        @keyframes scrollRoad {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50%); }
         }
-        
-        .form-group {
-            margin-bottom: 20px;
+
+        @keyframes waterMove {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
         }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--light-gray);
+
+        /* --- Game Objects with Your Images --- */
+        .player-car {
+            position: absolute;
+            width: 60px;
+            height: 100px;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            filter: drop-shadow(0 0 10px var(--neon-green));
+            transition: transform 0.1s; /* Tilt effect */
         }
-        
-        .form-group input {
+
+        .player-car img {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--medium-green);
-            border-radius: 5px;
-            background-color: var(--dark-gray);
-            color: var(--light-gray);
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            z-index: 9;
         }
         
-        .btn {
-            display: block;
+        .obstacle img {
             width: 100%;
-            padding: 12px;
-            background-color: var(--light-green);
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .proof {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            z-index: 8;
+            animation: spin 1s infinite linear;
+        }
+
+        .proof img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @keyframes spin {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- HUD --- */
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .hud-box {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--neon-green);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
             color: white;
-            border: none;
-            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-hint {
+            position: absolute;
+            bottom: 150px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+            pointer-events: none;
+        }
+        
+        .touch-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100; /* On top of everything */
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Car Selection UI */
+        .car-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .car-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--glass-border);
             cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
-        
-        .btn:hover {
-            background-color: var(--accent-green);
+
+        .car-icon img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
         }
-        
-        .auth-link {
-            text-align: center;
-            margin-top: 15px;
+
+        .car-icon.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
         }
-        
-        .auth-link a {
-            color: var(--accent-green);
-            text-decoration: none;
+
+        .car-icon.locked::after {
+            content: "🔒";
+            position: absolute;
+            font-size: 12px;
+            bottom: -5px;
+            right: -5px;
         }
-        
-        /* Intro Page */
-        .intro-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+
+        .car-icon.active {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
         }
-        
-        .intro-header {
-            text-align: center;
-            margin-bottom: 30px;
+
+        /* Modal Overrides */
+        #game-over-modal .card {
+            border-color: var(--danger);
+            box-shadow: 0 0 30px rgba(255, 51, 102, 0.2);
         }
+        #game-over-modal h2 { color: var(--danger); text-shadow: 0 0 10px var(--danger); }
         
-        .intro-header h1 {
-            color: var(--accent-green);
-            margin-bottom: 10px;
-        }
-        
+        #final-score-display { font-size: 3rem; color: white; margin: 10px 0; font-weight: bold; }
+
+        /* Intro Page with Game Banner */
         .game-banner {
             width: 100%;
             max-width: 800px;
@@ -132,589 +385,175 @@
             overflow: hidden;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
-        
+
         .game-banner img {
             width: 100%;
             display: block;
         }
-        
-        .intro-content {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-        
-        .intro-section {
-            background-color: var(--dark-green);
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .intro-section h2 {
-            color: var(--accent-green);
-            margin-bottom: 15px;
-        }
-        
-        .image-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        
-        .image-gallery img {
-            max-width: 200px;
-            border-radius: 5px;
-            border: 2px solid var(--medium-green);
-        }
-        
-        .controls-info {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: var(--dark-gray);
-            border-radius: 10px;
-        }
-        
-        .control-method {
-            text-align: center;
-            padding: 10px;
-        }
-        
-        .control-method h3 {
-            color: var(--accent-green);
-            margin-bottom: 10px;
-        }
-        
-        /* Game Page */
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-            height: calc(100vh - 40px);
-        }
-        
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            padding: 10px;
-            background-color: var(--dark-green);
-            border-radius: 10px;
-        }
-        
-        .score-display, .car-selector {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .car-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--dark-gray);
-            border: 2px solid var(--medium-green);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .car-icon img {
-            width: 30px;
-            height: 30px;
-        }
-        
-        .car-icon.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .car-icon.active {
-            border-color: var(--accent-green);
-            box-shadow: 0 0 10px var(--accent-green);
-        }
-        
-        .game-area {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 70vh;
-            max-height: 600px;
-            background-color: var(--dark-gray);
-            border-radius: 10px;
-            overflow: hidden;
-            touch-action: none;
-        }
-        
-        .road {
-            position: absolute;
-            width: 100%;
-            height: 80%;
-            top: 0;
-            background-image: url('road.jpg');
-            background-size: cover;
-        }
-        
-        .water {
-            position: absolute;
-            width: 100%;
-            height: 20%;
-            bottom: 0;
-            background-image: url('water.gif');
-            background-size: cover;
-        }
-        
-        .player-car {
-            position: absolute;
-            width: 60px;
-            height: 100px;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            transition: left 0.1s ease-out;
-        }
-        
-        .player-car img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .obstacle {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            z-index: 5;
-        }
-        
-        .obstacle img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .proof {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            z-index: 5;
-        }
-        
-        .proof img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .control-btn {
-            padding: 10px 20px;
-            background-color: var(--light-green);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        .control-btn:hover {
-            background-color: var(--accent-green);
-        }
-        
-        .control-btn:disabled {
-            background-color: var(--dark-gray);
-            cursor: not-allowed;
-        }
-        
-        .swipe-indicator {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--accent-green);
-            font-weight: bold;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 20px;
-            z-index: 20;
-            display: none;
-        }
-        
-        /* Game Over Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: var(--dark-green);
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .modal h2 {
-            color: var(--accent-green);
-            margin-bottom: 20px;
-        }
-        
-        .modal p {
-            margin-bottom: 20px;
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .game-container {
-                height: auto;
-                min-height: 100vh;
-            }
-            
-            .game-area {
-                height: 60vh;
-            }
-            
-            .game-header {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .car-selector {
-                justify-content: center;
-            }
-            
-            .swipe-indicator {
-                display: block;
-            }
-        }
+
     </style>
 </head>
 <body>
-    <!-- Login Page -->
-    <div id="login-page" class="page active">
-        <div class="auth-container">
-            <h2>Login to Dark Green Racing</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-username">Username</label>
-                    <input type="text" id="login-username" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" required>
-                </div>
-                <button type="submit" class="btn">Login</button>
-            </form>
-            <div class="auth-link">
-                <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
-            </div>
-        </div>
-    </div>
 
-    <!-- Signup Page -->
-    <div id="signup-page" class="page">
-        <div class="auth-container">
-            <h2>Create an Account</h2>
-            <form id="signup-form">
-                <div class="form-group">
-                    <label for="signup-username">Username</label>
-                    <input type="text" id="signup-username" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Confirm Password</label>
-                    <input type="password" id="confirm-password" required>
-                </div>
-                <button type="submit" class="btn">Sign Up</button>
-            </form>
-            <div class="auth-link">
-                <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+    <!-- Intro / Auth Page -->
+    <div id="intro-page" class="page active">
+        <div class="card">
+            <div class="game-banner">
+                <img src="zk.gif" alt="Game Banner">
             </div>
-        </div>
-    </div>
-
-    <!-- Intro Page -->
-    <div id="intro-page" class="page">
-        <div class="intro-container">
-            <div class="intro-header">
-                <h1>Dark Green Racing</h1>
-                <div class="game-banner">
-                    <img src="zk.gif" alt="Game Banner">
-                </div>
-                <p>Navigate the road, collect proofs, and avoid obstacles!</p>
+            <h1>Dark Green Racing</h1>
+            <p style="margin-bottom: 20px; color: #ccc;">Navigate the road, collect proofs, and avoid obstacles!</p>
+            
+            <div id="auth-forms">
+                <form id="login-form">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="username" placeholder="Enter username..." autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn">Start Game</button>
+                </form>
             </div>
-            <div class="intro-content">
-                <div class="intro-section">
-                    <h2>Game Overview</h2>
-                    <p>Welcome to Dark Green Racing, an exciting driving game where you control a car on a dangerous road. Your goal is to collect as many proof items as possible while avoiding obstacles that will end your run.</p>
-                    <div class="image-gallery">
-                        <img src="road.jpg" alt="Game Road">
-                        <img src="introbarner.jpg" alt="Game Banner">
-                    </div>
+            
+            <div class="car-selector">
+                <div class="car-icon active" data-car="car1">
+                    <img src="car1.png" alt="Car 1">
                 </div>
-                
-                <div class="intro-section">
-                    <h2>How to Play</h2>
-                    <p>Collect proof items (worth 2 points each) and avoid obstacles. The game ends when you hit an obstacle, and your score is saved.</p>
-                    <div class="image-gallery">
-                        <img src="proof.png" alt="Proof Item">
-                        <img src="obstacles.png" alt="Obstacles">
-                    </div>
-                    
-                    <div class="controls-info">
-                        <div class="control-method">
-                            <h3>Desktop Controls</h3>
-                            <p>Use ← → Arrow Keys</p>
-                        </div>
-                        <div class="control-method">
-                            <h3>Mobile Controls</h3>
-                            <p>Swipe Left/Right to Move</p>
-                        </div>
-                    </div>
+                <div class="car-icon locked" data-car="car2" data-cost="10">
+                    <img src="car2.png" alt="Car 2">
                 </div>
-                
-                <div class="intro-section">
-                    <h2>Unlock New Cars</h2>
-                    <p>Start with one car and unlock additional cars as you earn points. Each car has its own unique appearance and characteristics.</p>
-                    <div class="image-gallery">
-                        <img src="car1.png" alt="Car 1">
-                        <img src="car2.png" alt="Car 2">
-                        <img src="car3.png" alt="Car 3">
-                    </div>
-                </div>
-                
-                <div class="intro-section">
-                    <h2>Environment</h2>
-                    <p>Drive carefully! The road is surrounded by water, so stay on track to avoid falling in.</p>
-                    <div class="image-gallery">
-                        <img src="water.gif" alt="Water">
-                    </div>
-                </div>
-                
-                <button id="start-game" class="btn">Start Game</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Game Page -->
-    <div id="game-page" class="page">
-        <div class="game-container">
-            <div class="game-header">
-                <div class="score-display">
-                    <h3>Score: <span id="score">0</span></h3>
-                </div>
-                <div class="car-selector">
-                    <div class="car-icon active" data-car="car1">
-                        <img src="car1.png" alt="Car 1">
-                    </div>
-                    <div class="car-icon locked" data-car="car2" data-cost="10">
-                        <img src="car2.png" alt="Car 2">
-                    </div>
-                    <div class="car-icon locked" data-car="car3" data-cost="20">
-                        <img src="car3.png" alt="Car 3">
-                    </div>
+                <div class="car-icon locked" data-car="car3" data-cost="20">
+                    <img src="car3.png" alt="Car 3">
                 </div>
             </div>
             
-            <div class="game-area" id="game-area">
-                <div class="road"></div>
-                <div class="water"></div>
-                <div class="player-car">
+            <div style="margin-top: 20px; font-size: 0.8rem; color: #666;">
+                <i class="fas fa-fingerprint"></i> Slide finger to steer
+            </div>
+        </div>
+    </div>
+
+    <!-- Game UI -->
+    <div id="game-page" class="page">
+        <div id="game-container">
+            <!-- Background Elements -->
+            <div class="water-side water-left"><div class="water-overlay"></div></div>
+            <div class="water-side water-right"><div class="water-overlay"></div></div>
+            
+            <!-- Road -->
+            <div class="road-container" id="road">
+                <div class="road-texture"></div>
+                <!-- Game objects injected here -->
+                <div id="player" class="player-car">
                     <img src="car1.png" alt="Player Car">
                 </div>
-                <div class="swipe-indicator">Swipe to move</div>
+            </div>
+
+            <!-- HUD -->
+            <div class="hud">
+                <div class="hud-box">
+                    <i class="fas fa-trophy" style="color: var(--gold)"></i>
+                    <span id="score">0</span>
+                </div>
+                <div class="hud-box">
+                    <i class="fas fa-tachometer-alt" style="color: var(--neon-green)"></i>
+                    <span id="speed-display">100</span>
+                </div>
             </div>
             
-            <div class="controls">
-                <button id="play-btn" class="control-btn">Play</button>
-                <button id="pause-btn" class="control-btn" disabled>Pause</button>
+            <div class="controls-hint" id="tutorial">
+                <i class="fas fa-arrows-alt-h"></i> Slide left/right to dodge
             </div>
+
+            <!-- Touch Capture Layer -->
+            <div class="touch-area" id="touch-layer"></div>
         </div>
     </div>
 
     <!-- Game Over Modal -->
-    <div id="game-over-modal" class="modal">
-        <div class="modal-content">
-            <h2>Game Over!</h2>
+    <div id="game-over-modal" class="page">
+        <div class="card">
+            <h2>CRASHED</h2>
             <p>You hit an obstacle!</p>
-            <p>Final Score: <span id="final-score">0</span></p>
+            <div id="final-score-display">0</div>
+            <p style="color: #aaa; margin-bottom: 20px;">POINTS COLLECTED</p>
+            
             <button id="restart-btn" class="btn">Play Again</button>
-            <button id="back-to-intro" class="btn" style="margin-top: 10px; background-color: var(--dark-gray);">Back to Menu</button>
+            <button id="menu-btn" class="btn btn-secondary">Exit to Menu</button>
         </div>
     </div>
 
-    <!-- Audio Element -->
-    <audio id="game-sound" loop>
-        <source src="zksound.mp3" type="audio/mp3">
-    </audio>
-
     <script>
-        // Page Navigation
-        document.getElementById('show-signup').addEventListener('click', function(e) {
+        // --- Game Config & State ---
+        const Game = {
+            active: false,
+            score: 0,
+            speed: 5,
+            baseSpeed: 5,
+            laneWidth: 0, // Calculated dynamically
+            roadWidth: 0,
+            playerX: 0, // 0 to 100 percentage
+            obstacles: [],
+            proofs: [],
+            lastTime: 0,
+            animationFrame: null,
+            spawnTimer: 0,
+            difficultyTimer: 0,
+            currentCar: 'car1',
+            unlockedCars: ['car1']
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            intro: document.getElementById('intro-page'),
+            game: document.getElementById('game-page'),
+            gameOver: document.getElementById('game-over-modal'),
+            road: document.getElementById('road'),
+            player: document.getElementById('player'),
+            score: document.getElementById('score'),
+            finalScore: document.getElementById('final-score-display'),
+            touchLayer: document.getElementById('touch-layer'),
+            roadTexture: document.querySelector('.road-texture'),
+            speedDisplay: document.getElementById('speed-display'),
+            tutorial: document.getElementById('tutorial'),
+            username: document.getElementById('username')
+        };
+
+        // --- Authentication / Navigation ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            document.getElementById('login-page').classList.remove('active');
-            document.getElementById('signup-page').classList.add('active');
-        });
-
-        document.getElementById('show-login').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.getElementById('signup-page').classList.remove('active');
-            document.getElementById('login-page').classList.add('active');
-        });
-
-        document.getElementById('start-game').addEventListener('click', function() {
-            document.getElementById('intro-page').classList.remove('active');
-            document.getElementById('game-page').classList.add('active');
-        });
-
-        document.getElementById('back-to-intro').addEventListener('click', function() {
-            document.getElementById('game-over-modal').style.display = 'none';
-            document.getElementById('game-page').classList.remove('active');
-            document.getElementById('intro-page').classList.add('active');
-        });
-
-        // User Authentication
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('signup-username').value;
-            const password = document.getElementById('signup-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
-            
-            // Get existing users from localStorage
-            const users = JSON.parse(localStorage.getItem('racingUsers')) || [];
-            
-            // Check if username already exists
-            if (users.find(user => user.username === username)) {
-                alert('Username already exists!');
-                return;
-            }
-            
-            // Add new user
-            users.push({
-                username,
-                password,
-                score: 0,
-                unlockedCars: ['car1']
-            });
-            
-            localStorage.setItem('racingUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', username);
-            
-            document.getElementById('signup-page').classList.remove('active');
-            document.getElementById('intro-page').classList.add('active');
-        });
-
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            
-            // Get users from localStorage
-            const users = JSON.parse(localStorage.getItem('racingUsers')) || [];
-            
-            // Check if user exists and password matches
-            const user = users.find(user => user.username === username && user.password === password);
-            
-            if (!user) {
-                alert('Invalid username or password!');
-                return;
-            }
-            
-            localStorage.setItem('currentUser', username);
-            
-            document.getElementById('login-page').classList.remove('active');
-            document.getElementById('intro-page').classList.add('active');
-        });
-
-        // Check if user is already logged in
-        window.addEventListener('load', function() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                document.getElementById('login-page').classList.remove('active');
-                document.getElementById('intro-page').classList.add('active');
+            if(els.username.value.trim().length > 0) {
+                // Load user data
+                loadUserData();
+                startGame();
+            } else {
+                els.username.style.borderColor = 'var(--danger)';
             }
         });
 
-        // Game Logic
-        const gameArea = document.querySelector('.game-area');
-        const playerCar = document.querySelector('.player-car');
-        const scoreDisplay = document.getElementById('score');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const playBtn = document.getElementById('play-btn');
-        const pauseBtn = document.getElementById('pause-btn');
-        const gameOverModal = document.getElementById('game-over-modal');
-        const restartBtn = document.getElementById('restart-btn');
-        const carIcons = document.querySelectorAll('.car-icon');
-        const gameSound = document.getElementById('game-sound');
-        const swipeIndicator = document.querySelector('.swipe-indicator');
-
-        let gameActive = false;
-        let score = 0;
-        let playerX = gameArea.offsetWidth / 2 - playerCar.offsetWidth / 2;
-        let obstacles = [];
-        let proofs = [];
-        let gameSpeed = 5;
-        let obstacleInterval;
-        let proofInterval;
-        let gameLoop;
+        document.getElementById('restart-btn').addEventListener('click', startGame);
         
-        // Swipe control variables
-        let touchStartX = 0;
-        let isDragging = false;
+        document.getElementById('menu-btn').addEventListener('click', () => {
+            switchPage(els.gameOver, els.intro);
+        });
 
-        // Car selection
-        carIcons.forEach(icon => {
+        function switchPage(from, to) {
+            from.classList.remove('active');
+            to.classList.add('active');
+        }
+
+        // --- Car Selection Logic ---
+        document.querySelectorAll('.car-icon').forEach(icon => {
             icon.addEventListener('click', function() {
                 if (this.classList.contains('locked')) {
                     const cost = parseInt(this.getAttribute('data-cost'));
-                    const currentUser = localStorage.getItem('currentUser');
-                    const users = JSON.parse(localStorage.getItem('racingUsers')) || [];
-                    const userIndex = users.findIndex(user => user.username === currentUser);
-                    
-                    if (userIndex !== -1 && users[userIndex].score >= cost) {
+                    if (Game.score >= cost) {
                         // Unlock car
-                        users[userIndex].unlockedCars.push(this.getAttribute('data-car'));
-                        localStorage.setItem('racingUsers', JSON.stringify(users));
-                        
                         this.classList.remove('locked');
+                        Game.unlockedCars.push(this.getAttribute('data-car'));
+                        saveUserData();
                         selectCar(this);
                     } else {
+                        // Show message about needing more points
                         alert(`You need ${cost} points to unlock this car!`);
                     }
                 } else {
@@ -724,264 +563,283 @@
         });
 
         function selectCar(carIcon) {
-            carIcons.forEach(icon => icon.classList.remove('active'));
+            document.querySelectorAll('.car-icon').forEach(icon => {
+                icon.classList.remove('active');
+            });
             carIcon.classList.add('active');
             
             const carType = carIcon.getAttribute('data-car');
-            playerCar.innerHTML = `<img src="${carType}.png" alt="Player Car">`;
+            Game.currentCar = carType;
+            els.player.innerHTML = `<img src="${carType}.png" alt="Player Car">`;
         }
 
-        // Game controls
-        playBtn.addEventListener('click', startGame);
-        pauseBtn.addEventListener('click', pauseGame);
-        restartBtn.addEventListener('click', restartGame);
+        // --- User Data Management ---
+        function loadUserData() {
+            const username = els.username.value;
+            const userData = localStorage.getItem(`racing_user_${username}`);
+            if (userData) {
+                const data = JSON.parse(userData);
+                Game.score = data.score || 0;
+                Game.unlockedCars = data.unlockedCars || ['car1'];
+                
+                // Update car icons
+                document.querySelectorAll('.car-icon').forEach(icon => {
+                    const carType = icon.getAttribute('data-car');
+                    if (Game.unlockedCars.includes(carType)) {
+                        icon.classList.remove('locked');
+                    }
+                });
+            }
+        }
+
+        function saveUserData() {
+            const username = els.username.value;
+            const userData = {
+                username: username,
+                score: Game.score,
+                unlockedCars: Game.unlockedCars
+            };
+            localStorage.setItem(`racing_user_${username}`, JSON.stringify(userData));
+        }
+
+        // --- Core Game Logic ---
 
         function startGame() {
-            if (!gameActive) {
-                gameActive = true;
-                playBtn.disabled = true;
-                pauseBtn.disabled = false;
+            // Reset State
+            Game.active = true;
+            Game.score = 0;
+            Game.speed = Game.baseSpeed;
+            Game.obstacles = [];
+            Game.proofs = [];
+            Game.playerX = 50; // Center
+            Game.spawnTimer = 0;
+            
+            // Clear Road
+            const oldObjs = document.querySelectorAll('.obstacle, .proof');
+            oldObjs.forEach(o => o.remove());
+
+            // UI Updates
+            els.score.innerText = '0';
+            els.intro.classList.remove('active');
+            els.gameOver.classList.remove('active');
+            els.game.classList.add('active');
+            els.tutorial.style.display = 'block';
+            
+            // Wait for layout to calculate dimensions
+            setTimeout(() => {
+                Game.roadWidth = els.road.offsetWidth;
+                updatePlayerPosition();
+                Game.lastTime = performance.now();
+                requestAnimationFrame(gameLoop);
                 
-                // Hide swipe indicator after a few seconds
-                setTimeout(() => {
-                    swipeIndicator.style.opacity = '0';
-                    setTimeout(() => {
-                        swipeIndicator.style.display = 'none';
-                    }, 500);
-                }, 3000);
-                
-                // Start game sound
-                gameSound.play();
-                
-                // Start generating obstacles and proofs
-                obstacleInterval = setInterval(createObstacle, 1500);
-                proofInterval = setInterval(createProof, 2000);
-                
-                // Start game loop
-                gameLoop = setInterval(updateGame, 20);
+                // Hide tutorial after 3s
+                setTimeout(() => els.tutorial.style.display = 'none', 3000);
+            }, 100);
+        }
+
+        function gameLoop(timestamp) {
+            if (!Game.active) return;
+
+            const deltaTime = timestamp - Game.lastTime;
+            Game.lastTime = timestamp;
+
+            updatePhysics(deltaTime);
+            updateDifficulty();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updatePhysics(deltaTime) {
+            // 1. Move Road Texture (Visual Speed)
+            const speedMultiplier = 1 + (Game.speed / 20);
+            els.roadTexture.style.animationDuration = `${0.8 / speedMultiplier}s`;
+            els.speedDisplay.innerText = Math.floor(100 + (Game.speed * 10));
+
+            // 2. Spawn Objects
+            Game.spawnTimer += deltaTime;
+            if (Game.spawnTimer > (2000 / speedMultiplier)) { // Spawn faster as we speed up
+                spawnObject();
+                Game.spawnTimer = 0;
             }
-        }
 
-        function pauseGame() {
-            if (gameActive) {
-                gameActive = false;
-                playBtn.disabled = false;
-                pauseBtn.disabled = true;
-                
-                // Pause game sound
-                gameSound.pause();
-                
-                // Stop generating obstacles and proofs
-                clearInterval(obstacleInterval);
-                clearInterval(proofInterval);
-                
-                // Stop game loop
-                clearInterval(gameLoop);
-            }
-        }
+            // 3. Move & Collision Detection
+            const moveAmt = (Game.speed * deltaTime) / 16; // Normalize to roughly 60fps
 
-        function restartGame() {
-            // Reset game state
-            score = 0;
-            scoreDisplay.textContent = score;
-            playerX = gameArea.offsetWidth / 2 - playerCar.offsetWidth / 2;
-            playerCar.style.left = playerX + 'px';
-            
-            // Clear all obstacles and proofs
-            obstacles.forEach(obstacle => obstacle.remove());
-            proofs.forEach(proof => proof.remove());
-            obstacles = [];
-            proofs = [];
-            
-            // Show swipe indicator again
-            swipeIndicator.style.display = 'block';
-            swipeIndicator.style.opacity = '1';
-            
-            // Hide game over modal
-            gameOverModal.style.display = 'none';
-            
-            // Start new game
-            startGame();
-        }
+            // Move Obstacles
+            Game.obstacles.forEach((obs, index) => {
+                obs.y += moveAmt;
+                obs.el.style.top = `${obs.y}px`;
 
-        function createObstacle() {
-            const obstacle = document.createElement('div');
-            obstacle.className = 'obstacle';
-            obstacle.innerHTML = '<img src="obstacles.png" alt="Obstacle">';
-            
-            const obstacleX = Math.random() * (gameArea.offsetWidth - 50);
-            obstacle.style.left = obstacleX + 'px';
-            obstacle.style.top = '-50px';
-            
-            gameArea.appendChild(obstacle);
-            obstacles.push(obstacle);
-        }
-
-        function createProof() {
-            const proof = document.createElement('div');
-            proof.className = 'proof';
-            proof.innerHTML = '<img src="proof.png" alt="Proof">';
-            
-            const proofX = Math.random() * (gameArea.offsetWidth - 40);
-            proof.style.left = proofX + 'px';
-            proof.style.top = '-40px';
-            
-            gameArea.appendChild(proof);
-            proofs.push(proof);
-        }
-
-        function updateGame() {
-            // Move obstacles
-            obstacles.forEach((obstacle, index) => {
-                const obstacleTop = parseInt(obstacle.style.top) + gameSpeed;
-                obstacle.style.top = obstacleTop + 'px';
-                
-                // Check if obstacle is out of bounds
-                if (obstacleTop > gameArea.offsetHeight) {
-                    obstacle.remove();
-                    obstacles.splice(index, 1);
+                // Collision
+                if (checkCollision(obs.el, els.player, 0.7)) { // 0.7 is hitbox forgiveness
+                    gameOver();
                 }
-                
-                // Check collision with player
-                if (checkCollision(playerCar, obstacle)) {
-                    endGame();
+
+                // Cleanup
+                if (obs.y > window.innerHeight) {
+                    obs.el.remove();
+                    Game.obstacles.splice(index, 1);
                 }
             });
-            
-            // Move proofs
-            proofs.forEach((proof, index) => {
-                const proofTop = parseInt(proof.style.top) + gameSpeed;
-                proof.style.top = proofTop + 'px';
-                
-                // Check if proof is out of bounds
-                if (proofTop > gameArea.offsetHeight) {
-                    proof.remove();
-                    proofs.splice(index, 1);
+
+            // Move Proofs
+            Game.proofs.forEach((proof, index) => {
+                proof.y += moveAmt;
+                proof.el.style.top = `${proof.y}px`;
+
+                // Collection
+                if (checkCollision(proof.el, els.player, 0.8)) {
+                    collectProof(proof, index);
                 }
-                
-                // Check collision with player
-                if (checkCollision(playerCar, proof)) {
-                    score += 2;
-                    scoreDisplay.textContent = score;
-                    proof.remove();
-                    proofs.splice(index, 1);
+
+                if (proof.y > window.innerHeight) {
+                    proof.el.remove();
+                    Game.proofs.splice(index, 1);
                 }
             });
         }
 
-        function checkCollision(element1, element2) {
-            const rect1 = element1.getBoundingClientRect();
-            const rect2 = element2.getBoundingClientRect();
-            
+        function spawnObject() {
+            // Determine lane (10% to 90% width)
+            const lanePos = 10 + Math.random() * 80;
+            const isProof = Math.random() > 0.6; // 40% chance of proof
+
+            if (isProof) {
+                const el = document.createElement('div');
+                el.className = 'proof';
+                el.style.left = `${lanePos}%`;
+                el.innerHTML = '<img src="proof.png" alt="Proof">';
+                els.road.appendChild(el);
+                Game.proofs.push({ el: el, y: -50, x: lanePos });
+            } else {
+                const el = document.createElement('div');
+                el.className = 'obstacle';
+                el.style.left = `${lanePos}%`;
+                el.innerHTML = '<img src="obstacles.png" alt="Obstacle">';
+                els.road.appendChild(el);
+                Game.obstacles.push({ el: el, y: -100, x: lanePos });
+            }
+        }
+
+        function checkCollision(el1, el2, hitboxScale = 1) {
+            const r1 = el1.getBoundingClientRect();
+            const r2 = el2.getBoundingClientRect();
+
+            // Shrink hitbox slightly for better feel
+            const h1 = r1.height * hitboxScale;
+            const w1 = r1.width * hitboxScale;
+            const y1 = r1.y + (r1.height - h1)/2;
+            const x1 = r1.x + (r1.width - w1)/2;
+
             return !(
-                rect1.right < rect2.left ||
-                rect1.left > rect2.right ||
-                rect1.bottom < rect2.top ||
-                rect1.top > rect2.bottom
+                r2.left > x1 + w1 ||
+                r2.right < x1 ||
+                r2.top > y1 + h1 ||
+                r2.bottom < y1
             );
         }
 
-        function endGame() {
-            gameActive = false;
-            playBtn.disabled = false;
-            pauseBtn.disabled = true;
+        function collectProof(proof, index) {
+            Game.score += 2; // Each proof is worth 2 points
+            els.score.innerText = Game.score;
             
-            // Stop game sound
-            gameSound.pause();
-            gameSound.currentTime = 0;
-            
-            // Stop generating obstacles and proofs
-            clearInterval(obstacleInterval);
-            clearInterval(proofInterval);
-            
-            // Stop game loop
-            clearInterval(gameLoop);
-            
-            // Update user score
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const users = JSON.parse(localStorage.getItem('racingUsers')) || [];
-                const userIndex = users.findIndex(user => user.username === currentUser);
-                
-                if (userIndex !== -1 && score > users[userIndex].score) {
-                    users[userIndex].score = score;
-                    localStorage.setItem('racingUsers', JSON.stringify(users));
-                }
-            }
-            
-            // Show game over modal
-            finalScoreDisplay.textContent = score;
-            gameOverModal.style.display = 'flex';
+            // FX
+            proof.el.style.transform = "scale(1.5)";
+            proof.el.style.opacity = "0";
+            setTimeout(() => proof.el.remove(), 200);
+            Game.proofs.splice(index, 1);
         }
 
-        // Touch/swipe controls
-        gameArea.addEventListener('touchstart', function(e) {
-            if (!gameActive) return;
+        function updateDifficulty() {
+            // Gradually increase speed
+            if(Game.speed < 15) {
+                Game.speed += 0.001; 
+            }
+        }
+
+        function gameOver() {
+            Game.active = false;
+            els.finalScore.innerText = Game.score;
+            els.gameOver.classList.add('active');
             
+            // Save user data
+            saveUserData();
+        }
+
+        // --- IMPROVED TOUCH CONTROLS ---
+        
+        // We use relative drag. Where you touch is "anchor", moving finger moves car relative to anchor.
+        let touchStartX = 0;
+        let carStartX = 0;
+        let isDragging = false;
+
+        // Touch Events
+        els.touchLayer.addEventListener('touchstart', (e) => {
+            if(!Game.active) return;
+            e.preventDefault(); // Stop scrolling
             touchStartX = e.touches[0].clientX;
+            carStartX = Game.playerX;
             isDragging = true;
-            e.preventDefault();
-        });
+            
+            // Tilt effect reset
+            els.player.style.transform = `translateX(-50%) rotate(0deg)`;
+        }, {passive: false});
 
-        gameArea.addEventListener('touchmove', function(e) {
-            if (!gameActive || !isDragging) return;
-            
-            const touchX = e.touches[0].clientX;
-            const diff = touchX - touchStartX;
-            
-            // Calculate new position based on swipe distance
-            const newX = playerX + (diff * 0.8); // Sensitivity factor
-            
-            // Apply boundaries
-            const minX = 0;
-            const maxX = gameArea.offsetWidth - playerCar.offsetWidth;
-            
-            if (newX >= minX && newX <= maxX) {
-                playerX = newX;
-                playerCar.style.left = playerX + 'px';
-            }
-            
-            touchStartX = touchX;
+        els.touchLayer.addEventListener('touchmove', (e) => {
+            if(!Game.active || !isDragging) return;
             e.preventDefault();
-        });
+            
+            const currentX = e.touches[0].clientX;
+            const deltaX = currentX - touchStartX;
+            
+            // Convert pixels to percentage based on road width
+            // Sensitivity: 1.2x (Move finger 100px -> Car moves 120px equivalent)
+            const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
+            
+            Game.playerX = Math.max(5, Math.min(95, carStartX + percentChange));
+            updatePlayerPosition();
+            
+            // Visual Tilt
+            const tilt = Math.min(20, Math.max(-20, deltaX / 5));
+            els.player.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
+            
+        }, {passive: false});
 
-        gameArea.addEventListener('touchend', function() {
+        els.touchLayer.addEventListener('touchend', () => {
             isDragging = false;
+            // Reset tilt
+            els.player.style.transform = `translateX(-50%) rotate(0deg)`;
         });
 
-        // Keyboard controls (for desktop)
-        document.addEventListener('keydown', function(e) {
-            if (!gameActive) return;
+        // Mouse Fallback for Desktop Testing
+        els.touchLayer.addEventListener('mousedown', (e) => {
+            if(!Game.active) return;
+            touchStartX = e.clientX;
+            carStartX = Game.playerX;
+            isDragging = true;
+        });
+        
+        els.touchLayer.addEventListener('mousemove', (e) => {
+            if(!Game.active || !isDragging) return;
+            const currentX = e.clientX;
+            const deltaX = currentX - touchStartX;
+            const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
+            Game.playerX = Math.max(5, Math.min(95, carStartX + percentChange));
+            updatePlayerPosition();
             
-            const playerWidth = playerCar.offsetWidth;
-            const gameWidth = gameArea.offsetWidth;
-            
-            if (e.key === 'ArrowLeft' && playerX > 0) {
-                playerX -= 20;
-            } else if (e.key === 'ArrowRight' && playerX < gameWidth - playerWidth) {
-                playerX += 20;
-            }
-            
-            playerCar.style.left = playerX + 'px';
+            const tilt = Math.min(20, Math.max(-20, deltaX / 5));
+            els.player.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
+        });
+        
+        els.touchLayer.addEventListener('mouseup', () => {
+            isDragging = false;
+            els.player.style.transform = `translateX(-50%) rotate(0deg)`;
         });
 
-        // Update car unlock status on game page load
-        document.getElementById('game-page').addEventListener('click', function() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const users = JSON.parse(localStorage.getItem('racingUsers')) || [];
-                const user = users.find(user => user.username === currentUser);
-                
-                if (user) {
-                    carIcons.forEach(icon => {
-                        const carType = icon.getAttribute('data-car');
-                        if (user.unlockedCars.includes(carType)) {
-                            icon.classList.remove('locked');
-                        }
-                    });
-                }
-            }
-        });
+        function updatePlayerPosition() {
+            els.player.style.left = `${Game.playerX}%`;
+        }
+
     </script>
 </body>
 </html>
