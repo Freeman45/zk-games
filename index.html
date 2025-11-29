@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aligned Layer Racers</title>
+    <title>Aligned Layer Racers (made by freeguyx247)</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
@@ -263,6 +263,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            transform: rotate(180deg); /* Flip obstacle cars to face forward */
         }
 
         .proof {
@@ -594,7 +595,8 @@
             soundEnabled: true,
             gameStartTime: 0,
             proofsCollected: 0,
-            topSpeed: 0
+            topSpeed: 0,
+            gameOverModalActive: false
         };
 
         // --- DOM Elements ---
@@ -633,14 +635,21 @@
             }
         });
 
-        document.getElementById('restart-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            // Reset the game over modal state
+            Game.gameOverModalActive = false;
+            startGame();
+        });
         
         document.getElementById('menu-btn').addEventListener('click', () => {
+            // Reset the game over modal state
+            Game.gameOverModalActive = false;
             switchPage(els.gameOver, els.intro);
         });
 
         // Sound toggle
         els.soundToggle.addEventListener('click', () => {
+            if (Game.gameOverModalActive) return; // Prevent sound toggle when modal is active
             Game.soundEnabled = !Game.soundEnabled;
             if (Game.soundEnabled) {
                 els.gameSound.play();
@@ -746,6 +755,7 @@ Play now and beat my score!
             Game.gameStartTime = performance.now();
             Game.proofsCollected = 0;
             Game.topSpeed = 0;
+            Game.gameOverModalActive = false;
             
             // Clear Road
             const oldObjs = document.querySelectorAll('.obstacle, .proof');
@@ -776,7 +786,7 @@ Play now and beat my score!
         }
 
         function gameLoop(timestamp) {
-            if (!Game.active) return;
+            if (!Game.active || Game.gameOverModalActive) return;
 
             const deltaTime = timestamp - Game.lastTime;
             Game.lastTime = timestamp;
@@ -922,6 +932,7 @@ Play now and beat my score!
 
         function gameOver() {
             Game.active = false;
+            Game.gameOverModalActive = true;
             els.finalScore.innerText = Game.score;
             els.playerNameDisplay.innerText = els.username.value;
             els.proofsCollectedDisplay.innerText = Game.proofsCollected;
@@ -946,7 +957,7 @@ Play now and beat my score!
 
         // Touch Events
         els.touchLayer.addEventListener('touchstart', (e) => {
-            if(!Game.active) return;
+            if(!Game.active || Game.gameOverModalActive) return;
             e.preventDefault(); // Stop scrolling
             touchStartX = e.touches[0].clientX;
             carStartX = Game.playerX;
@@ -957,7 +968,7 @@ Play now and beat my score!
         }, {passive: false});
 
         els.touchLayer.addEventListener('touchmove', (e) => {
-            if(!Game.active || !isDragging) return;
+            if(!Game.active || !isDragging || Game.gameOverModalActive) return;
             e.preventDefault();
             
             const currentX = e.touches[0].clientX;
@@ -984,14 +995,14 @@ Play now and beat my score!
 
         // Mouse Fallback for Desktop Testing
         els.touchLayer.addEventListener('mousedown', (e) => {
-            if(!Game.active) return;
+            if(!Game.active || Game.gameOverModalActive) return;
             touchStartX = e.clientX;
             carStartX = Game.playerX;
             isDragging = true;
         });
         
         els.touchLayer.addEventListener('mousemove', (e) => {
-            if(!Game.active || !isDragging) return;
+            if(!Game.active || !isDragging || Game.gameOverModalActive) return;
             const currentX = e.clientX;
             const deltaX = currentX - touchStartX;
             const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
