@@ -174,14 +174,12 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* The moving road effect - REDUCED WIDTH */
+        /* The moving road effect - FULL WIDTH */
         .road-container {
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%; /* Responsive width */
-            max-width: 350px; /* Reduced from 500px to 350px */
+            left: 0;
+            width: 100%;
             height: 100%;
             background-image: url('road.jpg');
             background-size: cover;
@@ -201,19 +199,7 @@
             animation: scrollRoad 0.8s linear infinite; /* Adjusted via JS for speed */
         }
         
-        /* Water effects on sides - ADJUSTED FOR NARROWER ROAD */
-        .water-side {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 50vw;
-            background-image: url('water.gif');
-            background-size: cover;
-            opacity: 0.8;
-            z-index: 1;
-        }
-        .water-left { right: 50%; margin-right: 175px; } /* Adjusted from 250px to 175px */
-        .water-right { left: 50%; margin-left: 175px; } /* Adjusted from 250px to 175px */
+        /* Water effects on sides - REMOVED since road uses full width */
         
         .water-overlay {
             position: absolute;
@@ -518,10 +504,6 @@
     <!-- Game UI -->
     <div id="game-page" class="page">
         <div id="game-container">
-            <!-- Background Elements -->
-            <div class="water-side water-left"><div class="water-overlay"></div></div>
-            <div class="water-side water-right"><div class="water-overlay"></div></div>
-            
             <!-- Road -->
             <div class="road-container" id="road">
                 <div class="road-texture"></div>
@@ -634,7 +616,9 @@
             gameStartTime: 0,
             proofsCollected: 0,
             topSpeed: 0,
-            gameOverModalActive: false
+            gameOverModalActive: false,
+            minLanePos: 10, // Minimum lane position percentage
+            maxLanePos: 90  // Maximum lane position percentage
         };
 
         // --- DOM Elements ---
@@ -1014,8 +998,8 @@
         }
 
         function spawnObject() {
-            // Determine lane (10% to 90% width)
-            const lanePos = 10 + Math.random() * 80;
+            // Determine lane within road boundaries (10% to 90% width)
+            const lanePos = Game.minLanePos + Math.random() * (Game.maxLanePos - Game.minLanePos);
             const isProof = Math.random() > 0.7; // 30% chance of proof, 70% chance of obstacle
             
             // Increase obstacle frequency over time
@@ -1164,7 +1148,8 @@
             // Sensitivity: 1.2x (Move finger 100px -> Car moves 120px equivalent)
             const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
             
-            Game.playerX = Math.max(5, Math.min(95, carStartX + percentChange));
+            // Keep player within road boundaries
+            Game.playerX = Math.max(Game.minLanePos, Math.min(Game.maxLanePos, carStartX + percentChange));
             updatePlayerPosition();
             
             // Visual Tilt
@@ -1192,7 +1177,8 @@
             const currentX = e.clientX;
             const deltaX = currentX - touchStartX;
             const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
-            Game.playerX = Math.max(5, Math.min(95, carStartX + percentChange));
+            // Keep player within road boundaries
+            Game.playerX = Math.max(Game.minLanePos, Math.min(Game.maxLanePos, carStartX + percentChange));
             updatePlayerPosition();
             
             const tilt = Math.min(20, Math.max(-20, deltaX / 5));
