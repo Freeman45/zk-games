@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
     <title>Aligned Layer Racers</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -23,19 +23,30 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
-        body {
+        html, body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background-color: var(--bg-dark);
             color: white;
             font-family: 'Rajdhani', sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             background: radial-gradient(circle at center, #0a1f14 0%, #000000 100%);
+            transform: scale(1);
+            transform-origin: center center;
+        }
+
+        /* Prevent zoom on double-tap */
+        * {
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
         }
 
         /* --- Modern Glass UI --- */
@@ -198,8 +209,6 @@
             background-size: 100% 100px; /* Spacing of lines */
             animation: scrollRoad 0.8s linear infinite; /* Adjusted via JS for speed */
         }
-        
-        /* Water effects on sides - REMOVED since road uses full width */
         
         .water-overlay {
             position: absolute;
@@ -647,6 +656,29 @@
             resultCanvas: document.getElementById('result-canvas')
         };
 
+        // --- Prevent Zooming and Scaling ---
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function(e) {
+            e.preventDefault();
+        });
+
+        // Double-tap prevention
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
         // --- Authentication / Navigation ---
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -682,7 +714,7 @@
             location.reload(); // Refresh the page
         });
 
-        // Play/Pause toggle
+        // Play/Pause toggle - FIXED
         els.playPauseBtn.addEventListener('click', () => {
             if (Game.gameOverModalActive) return; // Prevent play/pause when modal is active
             
@@ -691,11 +723,20 @@
                 els.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 // Pause game sound
                 els.gameSound.pause();
+                // Stop the game loop
+                if (Game.animationFrame) {
+                    cancelAnimationFrame(Game.animationFrame);
+                }
             } else {
                 els.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 // Resume game sound if enabled
                 if (Game.soundEnabled) {
                     els.gameSound.play();
+                }
+                // Restart the game loop
+                if (Game.active) {
+                    Game.lastTime = performance.now();
+                    Game.animationFrame = requestAnimationFrame(gameLoop);
                 }
             }
         });
@@ -926,6 +967,7 @@
             
             if (Game.gameOverModalActive) return;
             if (Game.paused) {
+                // If paused, don't run the game logic but keep the loop going
                 Game.animationFrame = requestAnimationFrame(gameLoop);
                 return;
             }
