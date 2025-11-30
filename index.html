@@ -43,6 +43,12 @@
             transform-origin: center center;
         }
 
+        /* Prevent zoom on double-tap */
+        * {
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
+        }
+
         /* --- Modern Glass UI --- */
         .page {
             position: absolute;
@@ -151,7 +157,23 @@
             margin-top: 15px;
             text-decoration: underline;
         }
-        
+
+        .btn-share {
+            background: #1da1f2;
+            border-color: #1da1f2;
+            width: 48%;
+            display: inline-block;
+            margin: 5px 1%;
+        }
+
+        .btn-download {
+            background: #28a745;
+            border-color: #28a745;
+            width: 48%;
+            display: inline-block;
+            margin: 5px 1%;
+        }
+
         /* --- Game Area --- */
         #game-container {
             position: relative;
@@ -180,12 +202,12 @@
         .road-texture {
             position: absolute;
             width: 100%;
-            height: 200%;
+            height: 200%; /* Double height for looping */
             top: -100%;
             background-image: 
                 linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.5) 50%, transparent 51%);
-            background-size: 100% 100px;
-            animation: scrollRoad 0.8s linear infinite;
+            background-size: 100% 100px; /* Spacing of lines */
+            animation: scrollRoad 0.8s linear infinite; /* Adjusted via JS for speed */
         }
         
         .water-overlay {
@@ -200,122 +222,13 @@
             100% { transform: translateY(50%); }
         }
 
-        /* --- HUD --- */
-        .hud {
-            position: absolute;
-            top: 15px; /* Slightly lower */
-            left: 15px;
-            right: 15px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 50;
-            pointer-events: none;
+        @keyframes waterMove {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
         }
 
-        .hud-box {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            padding: 8px 15px; /* Reduced padding */
-            border-radius: 20px; /* More rectangular */
-            border: 1px solid var(--neon-green);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1rem; /* Smaller font */
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
-        }
-
-        /* --- GAME CONTROLS (Pause/Play/Sound) --- */
-        .game-control-panel {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            z-index: 50;
-        }
-
-        .control-btn {
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--neon-green);
-            color: var(--neon-green);
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
-            font-size: 1.2rem;
-        }
-
-        .control-btn:active {
-            transform: scale(0.9);
-            box-shadow: 0 0 5px var(--neon-green);
-        }
-        
-        /* Volume Slider Styling */
-        .volume-slider-container {
-            position: absolute;
-            bottom: 80px; /* Above the control buttons */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            border-radius: 10px;
-            padding: 10px 15px;
-            z-index: 50;
-            display: none; /* Hidden by default */
-            border: 1px solid var(--neon-green);
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
-        }
-        
-        .volume-slider-container.active {
-            display: block;
-        }
-
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #333;
-            border-radius: 5px;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-        }
-
-        input[type=range]:hover {
-            opacity: 1;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--neon-green);
-            cursor: pointer;
-            box-shadow: 0 0 5px var(--neon-green);
-        }
-
-        input[type=range]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--neon-green);
-            cursor: pointer;
-        }
-        
-        /* Game Objects */
+        /* --- Game Objects with Your Images --- */
         .player-car {
             position: absolute;
             width: 60px;
@@ -345,7 +258,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            transform: rotate(180deg);
+            transform: rotate(180deg); /* Flip obstacle cars to face forward */
         }
 
         .proof {
@@ -361,9 +274,39 @@
             height: 100%;
             object-fit: contain;
         }
-        
-        /* ... existing styles for controls-hint, touch-area, car-selector, game-over-modal ... */
-        
+
+        @keyframes spin {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- HUD --- */
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .hud-box {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--neon-green);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .controls-hint {
             position: absolute;
             bottom: 150px;
@@ -381,9 +324,82 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 100;
+            z-index: 100; /* On top of everything */
         }
-        
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Car Selection UI */
+        .car-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .car-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .car-icon img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .car-icon.active {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* Sound Controls */
+        .sound-control {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--neon-green);
+            cursor: pointer;
+        }
+
+        /* Play/Pause Controls */
+        .play-control {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 50;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--neon-green);
+            cursor: pointer;
+        }
+
+        /* Modal Overrides */
         #game-over-modal .card {
             border-color: var(--danger);
             box-shadow: 0 0 30px rgba(255, 51, 102, 0.2);
@@ -392,7 +408,7 @@
         #game-over-modal h2 { color: var(--danger); text-shadow: 0 0 10px var(--danger); }
         
         #final-score-display { font-size: 3rem; color: white; margin: 10px 0; font-weight: bold; }
-        
+
         .player-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -400,30 +416,60 @@
             margin: 20px 0;
             text-align: left;
         }
-        
+
         .stat-item {
             background: rgba(0,0,0,0.3);
             padding: 10px;
             border-radius: 10px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        
+
         .stat-label {
             font-size: 0.8rem;
             color: #88ccaa;
             margin-bottom: 5px;
         }
-        
+
         .stat-value {
             font-size: 1.2rem;
             font-weight: bold;
             color: white;
         }
 
+        .share-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        /* Intro Page with Game Banner */
+        .game-banner {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-banner img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Credit line */
+        .credit {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
 
+    <!-- Intro / Auth Page -->
     <div id="intro-page" class="page active">
         <div class="card">
             <div class="game-banner">
@@ -438,7 +484,7 @@
                         <label>Username</label>
                         <input type="text" id="username" placeholder="Enter username..." autocomplete="off">
                     </div>
-                    <button type="submit" class="btn">Start Race</button>
+                    <button type="submit" class="btn">Start Game</button>
                 </form>
             </div>
             
@@ -464,15 +510,19 @@
         </div>
     </div>
 
+    <!-- Game UI -->
     <div id="game-page" class="page">
         <div id="game-container">
+            <!-- Road -->
             <div class="road-container" id="road">
                 <div class="road-texture"></div>
+                <!-- Game objects injected here -->
                 <div id="player" class="player-car">
                     <img src="car1.png" alt="Player Car">
                 </div>
             </div>
 
+            <!-- HUD -->
             <div class="hud">
                 <div class="hud-box">
                     <i class="fas fa-trophy" style="color: var(--gold)"></i>
@@ -484,28 +534,26 @@
                 </div>
             </div>
             
-            <div class="game-control-panel">
-                <div class="control-btn" id="play-pause-btn">
-                    <i class="fas fa-pause"></i>
-                </div>
-                
-                <div class="control-btn" id="sound-toggle-btn">
-                    <i class="fas fa-volume-up" id="sound-icon"></i>
-                </div>
+            <!-- Play/Pause Control -->
+            <div class="play-control" id="play-pause-btn">
+                <i class="fas fa-pause"></i>
             </div>
             
-            <div class="volume-slider-container" id="volume-slider-container">
-                <input type="range" min="0" max="1" value="1" step="0.01" id="volume-slider">
+            <!-- Sound Control -->
+            <div class="sound-control" id="sound-toggle">
+                <i class="fas fa-volume-up"></i>
             </div>
             
             <div class="controls-hint" id="tutorial">
                 <i class="fas fa-arrows-alt-h"></i> Slide left/right to dodge
             </div>
 
+            <!-- Touch Capture Layer -->
             <div class="touch-area" id="touch-layer"></div>
         </div>
     </div>
 
+    <!-- Game Over Modal -->
     <div id="game-over-modal" class="page">
         <div class="card">
             <h2>RACE RESULTS</h2>
@@ -546,10 +594,12 @@
         </div>
     </div>
 
+    <!-- Audio Element -->
     <audio id="game-sound" loop>
         <source src="zksound.mp3" type="audio/mp3">
     </audio>
 
+    <!-- Hidden canvas for generating result card -->
     <canvas id="result-canvas" style="display: none;"></canvas>
 
     <script>
@@ -558,11 +608,11 @@
             active: false,
             paused: false,
             score: 0,
-            speed: 8,
+            speed: 8, // Increased base speed
             baseSpeed: 8,
-            laneWidth: 0,
+            laneWidth: 0, // Calculated dynamically
             roadWidth: 0,
-            playerX: 0,
+            playerX: 0, // 0 to 100 percentage
             obstacles: [],
             proofs: [],
             lastTime: 0,
@@ -570,14 +620,14 @@
             spawnTimer: 0,
             difficultyTimer: 0,
             currentCar: 'car1',
-            unlockedCars: ['car1', 'car2', 'car3'],
-            soundEnabled: true, // Renamed from soundEnabled
+            unlockedCars: ['car1', 'car2', 'car3'], // All cars unlocked by default
+            soundEnabled: true,
             gameStartTime: 0,
             proofsCollected: 0,
             topSpeed: 0,
             gameOverModalActive: false,
-            minLanePos: 10,
-            maxLanePos: 90
+            minLanePos: 10, // Minimum lane position percentage
+            maxLanePos: 90  // Maximum lane position percentage
         };
 
         // --- DOM Elements ---
@@ -594,11 +644,7 @@
             speedDisplay: document.getElementById('speed-display'),
             tutorial: document.getElementById('tutorial'),
             username: document.getElementById('username'),
-            // Updated DOM elements
-            soundToggleBtn: document.getElementById('sound-toggle-btn'), // The button
-            soundIcon: document.getElementById('sound-icon'), // The icon inside the button
-            volumeSlider: document.getElementById('volume-slider'), // The slider input
-            volumeSliderContainer: document.getElementById('volume-slider-container'), // The slider container
+            soundToggle: document.getElementById('sound-toggle'),
             playPauseBtn: document.getElementById('play-pause-btn'),
             gameSound: document.getElementById('game-sound'),
             playerNameDisplay: document.getElementById('player-name-display'),
@@ -609,15 +655,21 @@
             downloadResults: document.getElementById('download-results'),
             resultCanvas: document.getElementById('result-canvas')
         };
-        
-        // Initial setup for audio volume
-        els.gameSound.volume = els.volumeSlider.value;
-        
+
         // --- Prevent Zooming and Scaling ---
-        // ... (Existing touch event listeners for zoom prevention) ...
-        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
-        document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
-        document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function(e) {
+            e.preventDefault();
+        });
+
+        // Double-tap prevention
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
             const now = (new Date()).getTime();
@@ -627,11 +679,11 @@
             lastTouchEnd = now;
         }, false);
 
-
         // --- Authentication / Navigation ---
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             if(els.username.value.trim().length > 0) {
+                // Load user data
                 loadUserData();
                 startGame();
             } else {
@@ -640,13 +692,20 @@
         });
 
         document.getElementById('restart-btn').addEventListener('click', () => {
+            // Reset the game over modal state
             Game.gameOverModalActive = false;
+            
+            // Stop the current game loop
             Game.active = false;
             if (Game.animationFrame) {
                 cancelAnimationFrame(Game.animationFrame);
                 Game.animationFrame = null;
             }
+            
+            // Reset game state
             resetGameState();
+            
+            // Start a new game
             startGame();
         });
         
@@ -655,28 +714,26 @@
             location.reload(); // Refresh the page
         });
 
-        // ===================================
-        // NEW: Play/Pause/Sound Functionality
-        // ===================================
-        
-        // 1. Play/Pause toggle
+        // Play/Pause toggle - FIXED
         els.playPauseBtn.addEventListener('click', () => {
-            if (Game.gameOverModalActive || !Game.active) return;
+            if (Game.gameOverModalActive) return; // Prevent play/pause when modal is active
             
             Game.paused = !Game.paused;
             if (Game.paused) {
-                // PAUSE
                 els.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                // Pause game sound
                 els.gameSound.pause();
+                // Stop the game loop
                 if (Game.animationFrame) {
                     cancelAnimationFrame(Game.animationFrame);
                 }
             } else {
-                // RESUME
                 els.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                if (Game.soundEnabled) { // Only play if globally enabled
+                // Resume game sound if enabled
+                if (Game.soundEnabled) {
                     els.gameSound.play();
                 }
+                // Restart the game loop
                 if (Game.active) {
                     Game.lastTime = performance.now();
                     Game.animationFrame = requestAnimationFrame(gameLoop);
@@ -684,54 +741,20 @@
             }
         });
 
-        // 2. Sound Toggle/Slider Button
-        els.soundToggleBtn.addEventListener('click', () => {
-            if (Game.gameOverModalActive || !Game.active) return;
-            
-            // Toggle visibility of the slider container
-            els.volumeSliderContainer.classList.toggle('active');
-            
-            // If the volume is currently 0, re-enable sound on button click
-            if (els.gameSound.volume === 0 && !els.volumeSliderContainer.classList.contains('active')) {
-                els.gameSound.volume = 0.5; // Set a default low volume
-                els.volumeSlider.value = 0.5;
-                Game.soundEnabled = true;
-                els.soundIcon.className = 'fas fa-volume-down';
-                if (!Game.paused) els.gameSound.play();
-                return;
-            }
-        });
-        
-        // 3. Volume Slider Control (reduces/mutes sound)
-        els.volumeSlider.addEventListener('input', () => {
-            const volume = parseFloat(els.volumeSlider.value);
-            els.gameSound.volume = volume;
-
-            if (volume === 0) {
-                Game.soundEnabled = false;
-                els.soundIcon.className = 'fas fa-volume-mute';
-                els.gameSound.pause();
-            } else if (volume < 0.5) {
-                Game.soundEnabled = true;
-                els.soundIcon.className = 'fas fa-volume-down';
-                if (!Game.paused && els.gameSound.paused) els.gameSound.play();
+        // Sound toggle
+        els.soundToggle.addEventListener('click', () => {
+            if (Game.gameOverModalActive) return; // Prevent sound toggle when modal is active
+            Game.soundEnabled = !Game.soundEnabled;
+            if (Game.soundEnabled) {
+                if (!Game.paused) {
+                    els.gameSound.play();
+                }
+                els.soundToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
             } else {
-                Game.soundEnabled = true;
-                els.soundIcon.className = 'fas fa-volume-up';
-                if (!Game.paused && els.gameSound.paused) els.gameSound.play();
+                els.gameSound.pause();
+                els.soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
             }
         });
-        
-        // Global click listener to hide slider when clicking elsewhere
-        document.addEventListener('click', (e) => {
-            if (!els.volumeSliderContainer.contains(e.target) && e.target !== els.soundToggleBtn && e.target !== els.soundIcon) {
-                els.volumeSliderContainer.classList.remove('active');
-            }
-        });
-
-        // ===================================
-        // END: New Functionality
-        // ===================================
 
         // Share on Twitter/X
         els.shareTwitter.addEventListener('click', () => {
@@ -746,7 +769,6 @@
         });
 
         function generateResultsCard() {
-            // ... (Existing generateResultsCard function) ...
             const canvas = els.resultCanvas;
             const ctx = canvas.getContext('2d');
             
@@ -874,7 +896,9 @@
             if (userData) {
                 const data = JSON.parse(userData);
                 Game.score = data.score || 0;
-                Game.unlockedCars = data.unlockedCars || ['car1', 'car2', 'car3'];
+                Game.unlockedCars = data.unlockedCars || ['car1', 'car2', 'car3']; // All cars unlocked
+                
+                // Update car icons - all should be unlocked
                 document.querySelectorAll('.car-icon').forEach(icon => {
                     icon.classList.remove('locked');
                 });
@@ -901,7 +925,7 @@
             Game.speed = Game.baseSpeed;
             Game.obstacles = [];
             Game.proofs = [];
-            Game.playerX = 50;
+            Game.playerX = 50; // Center
             Game.spawnTimer = 0;
             Game.gameStartTime = performance.now();
             Game.proofsCollected = 0;
@@ -919,14 +943,10 @@
             els.game.classList.add('active');
             els.tutorial.style.display = 'block';
             els.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            els.volumeSliderContainer.classList.remove('active'); // Hide volume slider
             
-            // Start game sound (only if volume > 0)
-            if (els.gameSound.volume > 0) {
+            // Start game sound
+            if (Game.soundEnabled) {
                 els.gameSound.play();
-                Game.soundEnabled = true; // Ensure state reflects that sound is playing
-            } else {
-                Game.soundEnabled = false;
             }
             
             // Wait for layout to calculate dimensions
@@ -942,9 +962,12 @@
         }
 
         function gameLoop(timestamp) {
+            // Safety check - if game is not active, don't continue the loop
             if (!Game.active) return;
             
-            if (Game.gameOverModalActive || Game.paused) {
+            if (Game.gameOverModalActive) return;
+            if (Game.paused) {
+                // If paused, don't run the game logic but keep the loop going
                 Game.animationFrame = requestAnimationFrame(gameLoop);
                 return;
             }
@@ -972,6 +995,7 @@
 
             // 2. Spawn Objects
             Game.spawnTimer += deltaTime;
+            // Increase spawn rate as game progresses
             const spawnInterval = Math.max(500, 2000 / (speedMultiplier * 1.5));
             if (Game.spawnTimer > spawnInterval) {
                 spawnObject();
@@ -979,7 +1003,7 @@
             }
 
             // 3. Move & Collision Detection
-            const moveAmt = (Game.speed * deltaTime) / 16;
+            const moveAmt = (Game.speed * deltaTime) / 16; // Normalize to roughly 60fps
 
             // Move Obstacles
             Game.obstacles.forEach((obs, index) => {
@@ -987,7 +1011,7 @@
                 obs.el.style.top = `${obs.y}px`;
 
                 // Collision
-                if (checkCollision(obs.el, els.player, 0.7)) {
+                if (checkCollision(obs.el, els.player, 0.7)) { // 0.7 is hitbox forgiveness
                     gameOver();
                 }
 
@@ -1016,12 +1040,13 @@
         }
 
         function spawnObject() {
-            // ... (Existing spawnObject function) ...
+            // Determine lane within road boundaries (10% to 90% width)
             const lanePos = Game.minLanePos + Math.random() * (Game.maxLanePos - Game.minLanePos);
-            const isProof = Math.random() > 0.7; 
+            const isProof = Math.random() > 0.7; // 30% chance of proof, 70% chance of obstacle
             
+            // Increase obstacle frequency over time
             const gameTime = performance.now() - Game.gameStartTime;
-            const obstacleChance = Math.min(0.8, 0.5 + (gameTime / 60000) * 0.3);
+            const obstacleChance = Math.min(0.8, 0.5 + (gameTime / 60000) * 0.3); // Increases over 1 minute
 
             if (isProof) {
                 const el = document.createElement('div');
@@ -1053,10 +1078,10 @@
         }
 
         function checkCollision(el1, el2, hitboxScale = 1) {
-            // ... (Existing checkCollision function) ...
             const r1 = el1.getBoundingClientRect();
             const r2 = el2.getBoundingClientRect();
 
+            // Shrink hitbox slightly for better feel
             const h1 = r1.height * hitboxScale;
             const w1 = r1.width * hitboxScale;
             const y1 = r1.y + (r1.height - h1)/2;
@@ -1071,7 +1096,7 @@
         }
 
         function collectProof(proof, index) {
-            Game.score += 2;
+            Game.score += 2; // Each proof is worth 2 points
             Game.proofsCollected += 1;
             els.score.innerText = Game.score;
             
@@ -1083,7 +1108,8 @@
         }
 
         function updateDifficulty() {
-            Game.speed += 0.002;
+            // Remove speed cap - speed can increase indefinitely
+            Game.speed += 0.002; 
         }
 
         function gameOver() {
@@ -1124,7 +1150,6 @@
             els.score.innerText = '0';
             els.speedDisplay.innerText = '100';
             els.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            els.volumeSliderContainer.classList.remove('active'); // Hide volume slider
             
             // Stop and reset game sound
             els.gameSound.pause();
@@ -1133,20 +1158,11 @@
             // Reset player position and rotation
             updatePlayerPosition();
             els.player.style.transform = `translateX(-50%) rotate(0deg)`;
-            
-            // Reset volume icon/state based on current slider value
-            if (els.volumeSlider.value > 0.5) {
-                els.soundIcon.className = 'fas fa-volume-up';
-            } else if (els.volumeSlider.value > 0) {
-                els.soundIcon.className = 'fas fa-volume-down';
-            } else {
-                 els.soundIcon.className = 'fas fa-volume-mute';
-            }
-            Game.soundEnabled = (els.volumeSlider.value > 0);
         }
 
         // --- IMPROVED TOUCH CONTROLS ---
         
+        // We use relative drag. Where you touch is "anchor", moving finger moves car relative to anchor.
         let touchStartX = 0;
         let carStartX = 0;
         let isDragging = false;
@@ -1154,10 +1170,12 @@
         // Touch Events
         els.touchLayer.addEventListener('touchstart', (e) => {
             if(!Game.active || Game.gameOverModalActive || Game.paused) return;
-            e.preventDefault();
+            e.preventDefault(); // Stop scrolling
             touchStartX = e.touches[0].clientX;
             carStartX = Game.playerX;
             isDragging = true;
+            
+            // Tilt effect reset
             els.player.style.transform = `translateX(-50%) rotate(0deg)`;
         }, {passive: false});
 
@@ -1168,11 +1186,15 @@
             const currentX = e.touches[0].clientX;
             const deltaX = currentX - touchStartX;
             
+            // Convert pixels to percentage based on road width
+            // Sensitivity: 1.2x (Move finger 100px -> Car moves 120px equivalent)
             const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
             
+            // Keep player within road boundaries
             Game.playerX = Math.max(Game.minLanePos, Math.min(Game.maxLanePos, carStartX + percentChange));
             updatePlayerPosition();
             
+            // Visual Tilt
             const tilt = Math.min(20, Math.max(-20, deltaX / 5));
             els.player.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
             
@@ -1180,6 +1202,7 @@
 
         els.touchLayer.addEventListener('touchend', () => {
             isDragging = false;
+            // Reset tilt
             els.player.style.transform = `translateX(-50%) rotate(0deg)`;
         });
 
@@ -1196,6 +1219,7 @@
             const currentX = e.clientX;
             const deltaX = currentX - touchStartX;
             const percentChange = (deltaX / Game.roadWidth) * 100 * 1.5;
+            // Keep player within road boundaries
             Game.playerX = Math.max(Game.minLanePos, Math.min(Game.maxLanePos, carStartX + percentChange));
             updatePlayerPosition();
             
